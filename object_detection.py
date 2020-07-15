@@ -59,7 +59,15 @@ class DrawBoundingBox:
             frame = 0
             # file name convention
             self.record.append(filename.replace('.mpg', str(frame) + '.jpeg'))
+            # for continuation purposes (accidental keypress q)
+            # self.df = pd.read_csv('./bbox/asun_1_20200710101504_bbox.csv')
+            # self.df.columns = [0,1,2,3,4]
             while vid.isOpened():
+                # if frame <= 316: # For continuation purposes (accidental keypress q)
+                #     _, self.image = vid.read()
+                #     frame += 1
+                #     self.record = [filename.replace('.mpg', str(frame) + '.jpeg')]
+                # else:
                 cv2.namedWindow("image")
                 cv2.setMouseCallback("image", self.shape_selection, [filename,frame])
                 _, self.image = vid.read()
@@ -77,7 +85,7 @@ class DrawBoundingBox:
                         self.image = clone.copy()
 
                     # Continue video
-                    if key == 13 or key == -1:
+                    if (key == 13 or key == -1 or key == 32) and (len(self.record) == 5):
                         # save to pandas dataframe
                         self.df = self.df.append([self.record], ignore_index=True)
                         frame += 1
@@ -86,13 +94,13 @@ class DrawBoundingBox:
                 # Exit loop if it's q
                 if key == ord("q"):
                     break
-                    
-            if self.df.shape[0] > 0:
-                self.df.columns = ['name', 'x1','y1','x2','y2']
-                self.df.to_csv(self.out_folder + filename.replace('.mpg', '_bbox.csv').replace('Timelapses', 'bbox') ,index=False)
             
         except Exception as e:
             print(e)
+        
+        if self.df.shape[0] > 0:
+            self.df.columns = ['name', 'x1','y1','x2','y2']
+            self.df.to_csv(self.out_folder + filename.replace('.mpg', '_bbox.csv').replace('Timelapses', 'bbox') ,index=False)
             
         # close all open windows
         vid.release()
